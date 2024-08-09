@@ -24,14 +24,15 @@ public class Main {
             num_list[i]=Integer.parseInt(st.nextToken());
         }
 
-        insertionSort1();
-        num_list[0]=result.get(0);
+        insertionSort2();
+//        num_list[0]=result.get(0);
 
         int sum=0;
-        sum+=num_list[0];
-        for(int i=1;i<n;i++){
-            num_list[i]=num_list[i-1]+result.get(i);
-            sum+=num_list[i];
+//        sum+=num_list[0];
+        for(int i=0;i<n;i++){
+//            num_list[i]=num_list[i-1]+result.get(i);
+//            sum+=num_list[i];
+            sum+=sum_list[i];
         }
         System.out.println(sum);
     }
@@ -54,5 +55,36 @@ public class Main {
                 result.add(num_list[i]);
             }
         }
+    }
+
+    /**
+     * 하나의 배열을 가지고 정렬(제자리 정렬)
+     * 메모리 사용량은 위 방식보다 적다.
+     * 배열의 크기가 커지면 위 방식의 시간보다 오래 걸린다.
+     */
+    private static void insertionSort2(){
+        for(int i=1;i<n;i++){
+            int insert_point =i;
+            int insert_value=num_list[i];
+
+            for(int j=i-1;j>=0;j--){
+                if(num_list[j]<num_list[i]){
+                    insert_point=j+1;
+                    break;
+                }
+                if(j==0){
+                    insert_point=0;
+                }
+            }
+            for(int j=i;j>insert_point;j--){
+                num_list[j]=num_list[j-1];
+            }
+            num_list[insert_point]=insert_value;
+        }
+        sum_list[0]=num_list[0];
+        for(int i=1;i<n;i++){
+            sum_list[i]=sum_list[i-1]+num_list[i];
+        }
+
     }
 }
