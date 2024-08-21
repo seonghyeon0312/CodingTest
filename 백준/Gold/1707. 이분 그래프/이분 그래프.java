@@ -5,40 +5,46 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Main {
-    static ArrayList<Integer>[] A;
-    static int[] check;
+
     static boolean[] visited;
-    static boolean IsEven;
+    static String[] set;
+    static boolean result=true;
+    static ArrayList<Integer>[] graph;
 
     public static void main(String[] args) throws IOException{
         BufferedReader bf=new BufferedReader(new InputStreamReader(System.in));
-        int N=Integer.parseInt(bf.readLine());
-        for(int t=0;t<N;t++){
-            String[] s=bf.readLine().split(" ");
-            int V=Integer.parseInt(s[0]);
-            int E=Integer.parseInt(s[1]);
-            A=new ArrayList[V+1];
-            for(int i=1;i<=V;i++){
-                A[i]=new ArrayList<>();
-            }
-            visited=new boolean[V+1];
-            check=new int[V+1];
-            IsEven=true;
+        StringTokenizer st= new StringTokenizer(bf.readLine());
 
-            for(int i=0;i<E;i++){
-                s=bf.readLine().split(" ");
-                int S=Integer.parseInt(s[0]);
-                int End=Integer.parseInt(s[1]);
+        int k=Integer.parseInt(st.nextToken());
+        for(int q=0;q<k;q++){
+            st=new StringTokenizer(bf.readLine());
+            int v=Integer.parseInt(st.nextToken());
+            int e=Integer.parseInt(st.nextToken());
+            //init
+            visited=new boolean[v+1];
+            set=new String[v+1];
+            result=true;
+            graph=new ArrayList[v+1];
+            for(int i=0;i<=v;i++){
+                graph[i]=new ArrayList<>();
+            }
+            //graph 만들기
+            for(int i=1;i<=e;i++){
+                st=new StringTokenizer(bf.readLine());
+                int S=Integer.parseInt(st.nextToken());
+                int E=Integer.parseInt(st.nextToken());
 
-                A[S].add(End);
-                A[End].add(S);
+                graph[S].add(E);
+                graph[E].add(S);
             }
-            for(int i=1;i<=V;i++){
-                if(IsEven){
-                    DFS(i);
-                }else break;
+
+            for(int j=1;j<=v;j++){
+                if(!visited[j]){
+                    set[j]="A";
+                    DFS(j);
+                }
             }
-            if(IsEven){
+            if(result){
                 System.out.println("YES");
             }else{
                 System.out.println("NO");
@@ -47,12 +53,17 @@ public class Main {
     }
     private static void DFS(int node){
         visited[node]=true;
-        for (Integer i : A[node]) {
-            if(!visited[i]){
-                check[i]=(check[node]+1)%2;
-                DFS(i);
-            }else if(check[node]==check[i]){
-                IsEven=false;
+
+        for(int next : graph[node]){
+//            System.out.println("node = " + node+" next = " + next);
+            if(!visited[next]){
+//                System.out.println("set[node] = "+set[node]+" set[next] = " + set[next]);
+                set[next]=set[node].equals("A") ? "B" : "A";
+                DFS(next);
+            }else{
+                if(set[next].equals(set[node])){
+                    result=false;
+                }
             }
         }
     }
