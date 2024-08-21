@@ -42,6 +42,9 @@ public class Main {
                 if(!visited[j]){
                     set[j]="A";
                     DFS(j);
+                    if(!result){
+                        break;
+                    }
                 }
             }
             if(result){
