@@ -1,57 +1,69 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
-import java.io.IOException;
+    import java.io.IOException;
+    import java.io.BufferedReader;
+    import java.io.InputStreamReader;
+    import java.util.StringTokenizer;
 
-public class Main {
-    static int[] num;
-    static int n;
-    static int m;
-    public static void main(String[] args) throws IOException{
-        BufferedReader bf=new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st=new StringTokenizer(bf.readLine());
-        n=Integer.parseInt(st.nextToken());
-        m=Integer.parseInt(st.nextToken());
-        num=new int[n+1];
-        for(int i=0;i<=n;i++){
-            num[i]=i;
+    public class Main {
+
+        static int[] node;
+        static int n,m;
+
+        public static void main(String[] args) throws IOException{
+            BufferedReader bf=new BufferedReader(new InputStreamReader(System.in));
+            StringTokenizer st= new StringTokenizer(bf.readLine());
+            n=Integer.parseInt(st.nextToken());
+            m=Integer.parseInt(st.nextToken());
+
+            node= new int[n+1];
+
+            for(int i=0;i<=n;i++){
+                node[i]=i;
+            }
+
+            for(int i=0;i<m;i++){
+                st=new StringTokenizer(bf.readLine());
+
+                int num=Integer.parseInt(st.nextToken());
+                int a=Integer.parseInt(st.nextToken());
+                int b=Integer.parseInt(st.nextToken());
+
+                if(num==0){
+                    int min=Math.min(a,b);
+                    int max=Math.max(a,b);
+                    union(min,max);
+                }else if(num==1){
+                    if(unionFind(a,b)){
+                        System.out.println("YES");
+                    }else{
+                        System.out.println("NO");
+                    }
+                }
+            }
         }
 
-        for(int k=0;k<m;k++){
-            st=new StringTokenizer(bf.readLine());
-            if(st.nextToken().equals(String.valueOf('0'))){
-                Union(Integer.parseInt(st.nextToken()),Integer.parseInt(st.nextToken()));
-            } else{
-                Find(Integer.parseInt(st.nextToken()),Integer.parseInt(st.nextToken()));
+        public static void union(int a, int b){
+            int newA=find(a);
+            int newB=find(b);
+            if(newA!=newB){
+                node[newB]=newA;
+            }
+        }
+
+        public static boolean unionFind(int a,int b){
+            node[a]=find(a);
+            node[b]=find(b);
+            if(node[a]==node[b]){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        public static int find(int a){
+            if(node[a]==a){
+                return a;
+            }else{
+                return node[a]=find(node[a]);
             }
         }
     }
-    public static void Union(int num1, int num2){
-        int result1;
-        int result2;
-
-        if((num[num1]==num1)&&(num[num2]==num2)){
-            num[num2]=num[num1];
-        }else{
-            //재귀로 각 원소의 대표 노드 찾기
-            result1=_find(num1);
-            result2=_find(num2);
-            num[result2]=num[result1];
-        }
-    }
-    public static void Find(int num1, int num2){
-        int find_num1=_find(num1);
-        int find_num2=_find(num2);
-        if(find_num2==find_num1){
-            System.out.println("YES");
-        }else{
-            System.out.println("NO");
-        }
-    }
-    private static int _find(int num1){
-        if(num[num1]!=num1){
-            num[num1]=_find(num[num1]);
-        }
-        return num[num1];
-    }
-}
