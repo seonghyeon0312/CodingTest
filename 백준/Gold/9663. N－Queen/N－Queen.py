@@ -1,23 +1,13 @@
-def queen(row,col,diag1,diag2,count,N):
+def solve(row, col, diag1, diag2, N):
     if row == N:
-        count+=1
-        return count
-    
-    for i in range(N):
-        if not col[i] and not diag1[row+i] and not diag2[row-i+(N-1)] :
-            col[i] = diag1[row+i] = diag2[row-i+(N-1)] = True
-            count = queen(row+1,col,diag1,diag2,count,N)
-            col[i] = diag1[row+i] = diag2[row-i+(N-1)] = False
+        return 1
+    count = 0
+    available_positions = ((1 << N) - 1) & ~(col | diag1 | diag2)
+    while available_positions:
+        position = available_positions & -available_positions  # 최하위 비트 선택
+        available_positions -= position  # 해당 위치 사용
+        count += solve(row + 1, col | position, (diag1 | position) << 1, (diag2 | position) >> 1, N)
     return count
 
-
-N=int(input())
-
-count=0
-col=[False] * N
-diag1 = [False] * (2*N-1)
-diag2 = [False] * (2*N-1)
-
-count = queen(0,col,diag1,diag2,count,N)
-
-print(count)
+N = int(input())
+print(solve(0, 0, 0, 0, N))
