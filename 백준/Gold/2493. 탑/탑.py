@@ -1,7 +1,3 @@
-import sys
-input=sys.stdin.readline
-print = sys.stdout.write
-
 N = int(input())
 
 heights = list(map(int,input().split()))
@@ -17,6 +13,5 @@ for i in range(N):
         result[i]=stack[-1][0]+1
         
     stack.append([i,heights[i]])
-
-for receive in result:
-    print(f"{receive} ")
+    
+print(" ".join(map(str,result)) + "\n")
