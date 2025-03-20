@@ -1,25 +1,19 @@
 import sys
-input=sys.stdin.readline
-N=int(input())
-queue=[]
-for _ in range(0, N):
-  order=input().split()
-  if order[0]=="push":
-    queue.append(int(order[1]))
-  elif order[0]=="empty":
-    if len(queue)>=1:
-      print(0)
-    else:
-      print(1)
-  elif order[0]=="size":
-    print(len(queue))
-  elif order[0]=="pop":
-    if len(queue)>=1:
-      print(queue.pop())
-    else:
-      print(-1)
-  elif order[0]=="top":
-    if len(queue)>=1:
-      print(queue[-1])
-    else:
-      print(-1)
+input = sys.stdin.readline
+
+N = int(input().strip())
+stack = []
+
+for _ in range(N):
+    order = input().split()
+    
+    if order[0] == "push":
+        stack.append(int(order[1]))  # push는 따로 함수 호출 없이 직접 append
+    elif order[0] == "pop":
+        print(stack.pop() if stack else -1)
+    elif order[0] == "size":
+        print(len(stack))
+    elif order[0] == "empty":
+        print(0 if stack else 1)
+    elif order[0] == "top":
+        print(stack[-1] if stack else -1)
