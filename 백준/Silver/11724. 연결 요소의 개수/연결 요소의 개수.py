@@ -1,30 +1,32 @@
 import sys
-input=sys.stdin.readline
 sys.setrecursionlimit(10**6)
-def dfs(node, hi, graph):
-  if hi[node]:
-    return
-  hi[node]=True
-  for x in graph[node]:
-    if hi[x]==False:
-      dfs(x, hi, graph)
+input =sys.stdin.readline
 
-V,E=list(map(int,input().split()))
-graph=[[] for _ in range(V+1)] #인접 리스트
-for i in range(E):
-  start,end=list(map(int,input().split()))
-  graph[start].append(end)
-  graph[end].append(start)
+def dfs(visited, node, graph):
+    if visited[node]:
+        return
+    else:
+        visited[node] = True
+        for x in graph[node]:
+            if not visited[x]:
+                dfs(visited,x,graph)
 
-#방문 여부 저장 리스트
-hi=[False for i in range(V+1)]
 
-#연결 요소 개수
-cnt=0
+v, e = map(int,input().split())
 
-for i in range(1,V+1):
-  if not hi[i]:
-    cnt+=1
-    dfs(i,hi,graph)
+graph = [[] for _ in range(v+1)]
+for i in range(e):
+    start, end = map(int,input().split())
+    graph[start].append(end)
+    graph[end].append(start)
 
-print(cnt)
+visited = [False for _ in range(v+1)]
+
+count =0
+
+for i in range(1,v+1):
+    if not visited[i]:
+        dfs(visited, i, graph)
+        count+=1
+
+print(count)
