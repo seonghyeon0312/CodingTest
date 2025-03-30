@@ -50,7 +50,6 @@ public class Main {
         }
         System.out.println(count);
     }
-
     private static void melting(){
         Queue<Integer> tempQueue=new LinkedList<>();
 
