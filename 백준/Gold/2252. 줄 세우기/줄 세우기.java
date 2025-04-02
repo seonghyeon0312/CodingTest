@@ -1,63 +1,61 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.Queue;
+import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.util.Arrays.*;
+public class Main{
 
-public class Main {
-
-    static int n,m;
-    static ArrayList<Integer>[] arrayList;
-    static int[] count;
-    static Queue<Integer> queue= new LinkedList<>();
+    static int N,M;
+    static List<List<Integer>> graph = new ArrayList<>();
+    static int[] indegree;
+    static Queue<Integer> queue = new LinkedList<>();
 
     public static void main(String[] args) throws IOException{
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(bf.readLine());
 
-        BufferedReader bf=new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st=new StringTokenizer(bf.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        indegree = new int[N+1];
 
-        n=Integer.parseInt(st.nextToken());
-        m=Integer.parseInt(st.nextToken());
-        arrayList=new ArrayList[n+1];
-        count= new int[n+1];
-        StringBuilder result= new StringBuilder();
-
-        for(int i=1;i<=n;i++){
-            arrayList[i]=new ArrayList<>();
+        for(int i=0;i<=N;i++){
+            graph.add(new ArrayList<>());
         }
-        for(int i=0;i<m;i++){
-            st=new StringTokenizer(bf.readLine());
-            int a=Integer.parseInt(st.nextToken());
-            int b=Integer.parseInt(st.nextToken());
-            arrayList[a].add(b);
-            count[b]++;
-        }
+        for(int i=0;i<M;i++){
+            st = new StringTokenizer(bf.readLine());
 
-        for(int i=1;i<=n;i++){
-            if(count[i]==0){
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+
+            graph.get(start).add(end);
+            indegree[end]++;
+        }
+        for(int i=1;i<=N;i++){
+            if(indegree[i]==0){
                 queue.add(i);
             }
         }
+        sort();
+    }
 
+    static void sort(){
+        StringBuilder sb = new StringBuilder();
         while(!queue.isEmpty()){
             int now = queue.poll();
-
-            for(int i=0;i<arrayList[now].size();i++){
-                int num = arrayList[now].get(i);
-                count[num]--;
-                if(count[num]==0){
-                    queue.add(num);
+            sb.append(now).append(" ");
+            for (Integer node : graph.get(now)) {
+                if(indegree[node]>0){
+                    indegree[node]--;
+                    if(indegree[node]==0){
+                        queue.add(node);
+                    }
                 }
             }
-
-            String temp=String.valueOf(now);
-            result.append(temp).append(" ");
         }
-
-        System.out.println(result);
+        System.out.println(sb);
     }
 }
