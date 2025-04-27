@@ -25,9 +25,11 @@ def dfs(node):
         if visited[neighbor]:
             continue
         visited[neighbor] = True
-        dfs(neighbor)
-        if current[neighbor] > 0:
-            current[node]+=current[neighbor]
+        child = dfs(neighbor)
+        if child > 0:
+            current[node]+=child
+            
+    return current[node]
 
 visited[p]=True
 dfs(p)
