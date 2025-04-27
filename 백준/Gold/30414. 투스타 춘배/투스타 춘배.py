@@ -20,17 +20,15 @@ visited[0]=True
 current = [0 for _ in range(n+1)]
 
 def dfs(node):
-    current[node] = goal[node]-now[node]
+    diff = goal[node]-now[node]
     for neighbor in graph[node]:
         if visited[neighbor]:
             continue
         visited[neighbor] = True
         child = dfs(neighbor)
         if child > 0:
-            current[node]+=child
-            
-    return current[node]
-
+            diff+=child
+    return diff
 visited[p]=True
-dfs(p)
-print(current[p])
+result = dfs(p)
+print(result)
