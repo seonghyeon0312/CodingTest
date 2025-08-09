@@ -1,62 +1,47 @@
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.StringJoiner;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Stack;
-import java.util.stream.Collectors;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
-public class Main{
-    static boolean isWord = true;
-    public static void main(String[] args) throws IOException{
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        String s = bf.readLine();
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String s = br.readLine();
 
+        StringBuilder out = new StringBuilder(s.length());
+        Deque<Character> stack = new ArrayDeque<>(); // faster than legacy Stack
+        boolean inTag = false; // true면 <tag> 내부, false면 바깥(단어 뒤집기 구간)
 
-//        List<String> strings = Arrays.stream(s.split("")).toList();
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
 
-        List<String> strings = Arrays.stream(s.split(""))
-                .collect(Collectors.toList());
-        Stack<String> stack = new Stack<>();
-        List<String> result = new ArrayList<>();
-
-        for(String word : strings){
-            if(word.equals("<") || word.equals(" ")){
-                while(!stack.isEmpty()){
-                    result.add(stack.pop());
-                }
-                result.add(word);
-                if(word.equals("<"))
-                    isWord = false;
-                continue;
-            }else if(word.equals(">")){
-                isWord = true;
-                result.add(word);
-                continue;
-            }
-            if(isWord){
-                stack.add(word);
-            }else{
-                result.add(word);
+            if (ch == '<') {          // 태그 시작 → 그 전에 쌓인 단어 뒤집어서 출력
+                flush(stack, out);
+                inTag = true;
+                out.append(ch);
+            } else if (ch == '>') {   // 태그 종료
+                inTag = false;
+                out.append(ch);
+            } else if (inTag) {       // 태그 내부는 그대로 출력
+                out.append(ch);
+            } else if (ch == ' ') {   // 단어 경계 → 지금까지의 단어 뒤집고 공백 출력
+                flush(stack, out);
+                out.append(' ');
+            } else {                  // 태그 밖의 문자 → 스택에 쌓았다가 뒤집어 출력
+                stack.push(ch);
             }
         }
 
-        if(!stack.isEmpty()){
-            while(!stack.isEmpty()){
-                result.add(stack.pop());
-            }
+        // 마지막 단어가 남아 있다면 비워서 출력
+        flush(stack, out);
+
+        System.out.println(out.toString());
+    }
+
+    private static void flush(Deque<Character> stack, StringBuilder out) {
+        while (!stack.isEmpty()) {
+            out.append(stack.pop());
         }
-
-        StringJoiner sj = new StringJoiner("");
-
-        for(String word : result){
-            sj.add(word);
-        }
-
-        System.out.println(sj);
-
-
     }
 }
