@@ -1,81 +1,102 @@
-import java.util.Queue;
-import java.util.LinkedList;
-import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int[][] board, copy;
-    static int max_safezone=Integer.MIN_VALUE;
-    static int n,m;
-    static int[] dx={0,1,0,-1};
-    static int[] dy={1,0,-1,0};
-    static Queue<int[]> queue=new LinkedList<>();
+    static int n, m;
+    static int[][] board;
+    static final int[] dx = {0, 1, 0, -1};
+    static final int[] dy = {1, 0, -1, 0};
+
+    static List<int[]> empties = new ArrayList<>();  // 0인 좌표들
+    static List<int[]> viruses = new ArrayList<>();  // 2인 좌표들
+    static int zeroCount = 0;
+
     public static void main(String[] args) throws IOException {
-        BufferedReader bf=new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st=new StringTokenizer(bf.readLine());
-        n=Integer.parseInt(st.nextToken());
-        m=Integer.parseInt(st.nextToken());
-        board=new int[n][m];
-        for(int i=0;i<n;i++){
-            st=new StringTokenizer(bf.readLine());
-            for(int j=0;j<m;j++){
-                int number=Integer.parseInt(st.nextToken());
-                board[i][j]=number;
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+
+        board = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; j++) {
+                board[i][j] = Integer.parseInt(st.nextToken());
+                if (board[i][j] == 0) {
+                    empties.add(new int[]{i, j});
+                    zeroCount++;
+                } else if (board[i][j] == 2) {
+                    viruses.add(new int[]{i, j});
+                }
             }
         }
-        DFS(0);
-        System.out.println(max_safezone);
+
+        int best = solve();
+        System.out.println(best);
     }
-    public static void DFS(int wall){
-        if(wall==3){
-            BFS();
-            return;
-        }
-        for(int i=0;i<n;i++){
-            for(int j=0;j<m;j++){
-                if(board[i][j]==0){
-                    board[i][j]=1;
-                    DFS(wall+1);
-                    board[i][j]=0; // 해당 경우의 안전 구역 개수를 구하고 나면 다른 경우를 위해서 다시 값을 0으로 돌린다.
+
+    // 조합 i<j<k 로만 생성 → 중복(순열) 방지
+    private static int solve() {
+        int e = empties.size();
+        int ans = 0;
+        for (int i = 0; i < e; i++) {
+            for (int j = i + 1; j < e; j++) {
+                for (int k = j + 1; k < e; k++) {
+                    int[] w1 = empties.get(i);
+                    int[] w2 = empties.get(j);
+                    int[] w3 = empties.get(k);
+                    int infected = spreadWithWalls(w1, w2, w3);
+                    int safe = zeroCount - 3 - infected;
+                    if (safe > ans) ans = safe;
                 }
             }
         }
+        return ans;
     }
-    public static void BFS() {
-        copy=new int[n][m];
-        for(int i=0;i<n;i++){
-            copy[i]=board[i].clone();
+
+    // 보드를 복사하지 않고, 선택한 3개의 벽 좌표를 차단으로 간주하여 BFS로 감염 수만 센다.
+    private static int spreadWithWalls(int[] w1, int[] w2, int[] w3) {
+        boolean[][] visited = new boolean[n][m];
+        ArrayDeque<int[]> q = new ArrayDeque<>();
+
+        // 바이러스 시작점 다 넣기
+        for (int[] v : viruses) {
+            q.offer(new int[]{v[0], v[1]});
+            visited[v[0]][v[1]] = true;
         }
-        for(int i=0;i<n;i++){
-            for(int j=0;j<m;j++){
-                if(board[i][j]==2){
-                    queue.offer(new int[] {i,j});
-                }
+
+        int infected = 0; // 0이었던 칸 중 감염된 수
+
+        while (!q.isEmpty()) {
+            int[] cur = q.poll();
+            int x = cur[0], y = cur[1];
+
+            for (int dir = 0; dir < 4; dir++) {
+                int nx = x + dx[dir];
+                int ny = y + dy[dir];
+                if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
+                if (visited[nx][ny]) continue;
+
+                // 기존 벽이거나, 새로 세운 3개 벽이면 진행 불가
+                if (board[nx][ny] == 1) continue;
+                if (isWall(nx, ny, w1, w2, w3)) continue;
+
+                visited[nx][ny] = true;
+                if (board[nx][ny] == 0) infected++; // 빈 칸을 처음 감염시킴
+                q.offer(new int[]{nx, ny});
             }
         }
-        while(!queue.isEmpty()){
-            int[] virus=queue.poll();
-            for(int k=0;k<4;k++){
-                int nx=virus[0]+dx[k];
-                int ny=virus[1]+dy[k];
-                if(nx>=0&&ny>=0&&nx<n&&ny<m){
-                    if(copy[nx][ny]==0){
-                        copy[nx][ny]=2;
-                        queue.offer(new int[] {nx,ny});
-                    }
-                }
-            }
-        }
-        int cnt=0;
-        for(int i=0;i<n;i++){
-            for(int j=0;j<m;j++){
-                if(copy[i][j]==0){
-                    cnt++;
-                }
-            }
-        }
-        max_safezone=Math.max(max_safezone,cnt);
+        return infected;
+    }
+
+    private static boolean isWall(int x, int y, int[] w1, int[] w2, int[] w3) {
+        return (x == w1[0] && y == w1[1]) ||
+               (x == w2[0] && y == w2[1]) ||
+               (x == w3[0] && y == w3[1]);
     }
 }
