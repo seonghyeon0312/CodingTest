@@ -1,62 +1,68 @@
-import java.util.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 class Solution {
     private static final DateTimeFormatter F = DateTimeFormatter.ofPattern("HH:mm");
 
     public String solution(int n, int t, int m, String[] timetable) {
-        
-        LocalTime base = LocalTime.parse("09:00", F);
+        List<LocalTime> crews = new ArrayList<>(timetable.length);
+        for (String s : timetable) crews.add(LocalTime.parse(s, F));
+        Collections.sort(crews);
+
         List<Bus> buses = new ArrayList<>(n);
+        LocalTime first = LocalTime.of(9, 0);
         for (int i = 0; i < n; i++) {
-            buses.add(new Bus(base.plusMinutes((long) i * t), m));
+            buses.add(new Bus(first.plusMinutes((long) i * t), m));
         }
 
-        PriorityQueue<LocalTime> wait = new PriorityQueue<>();
-        for (String s : timetable) {
-            wait.offer(LocalTime.parse(s, F));
-        }
+        int idx = 0;                   
+        LocalTime lastBoarded = null;  
 
-        LocalTime lastBoardedOnLastBus = null;
         for (int i = 0; i < n; i++) {
             Bus bus = buses.get(i);
-            int boarded = 0;
 
-            while (boarded < bus.maxPassengers && !wait.isEmpty() && !wait.peek().isAfter(bus.departureTime)) {
-                LocalTime passenger = wait.poll();
-                boarded++;
-                if (i == n - 1) lastBoardedOnLastBus = passenger;
+            while (idx < crews.size() && bus.canBoard(crews.get(idx))) {
+                lastBoarded = crews.get(idx);
+                bus.board(lastBoarded);
+                idx++;
             }
 
-            bus.nowPassengers = boarded;
-
             if (i == n - 1) {
-                if (bus.nowPassengers < bus.maxPassengers) {
-                    return bus.departureTime.format(F);
+                if (bus.hasSeat()) {
+                    return bus.depart.format(F);
                 } else {
-                    LocalTime cand = lastBoardedOnLastBus.minusMinutes(1);
+                    LocalTime cand = lastBoarded.minusMinutes(1);
                     if (cand.isBefore(LocalTime.MIDNIGHT)) cand = LocalTime.MIDNIGHT;
                     return cand.format(F);
                 }
             }
         }
-        return buses.get(n - 1).departureTime.format(F);
+
+        return buses.get(n - 1).depart.format(F);
     }
 
-    class Bus {
-        final LocalTime departureTime;
-        final int maxPassengers;
-        int nowPassengers;
+    static class Bus {
+        final LocalTime depart; 
+        final int limit;        
+        int count;              
 
-        Bus(LocalTime time, int max) {
-            this.departureTime = time;
-            this.maxPassengers = max;
-            this.nowPassengers = 0;
+        Bus(LocalTime depart, int limit) {
+            this.depart = depart;
+            this.limit = limit;
+            this.count = 0;
         }
 
-        boolean isAvailable() {
-            return nowPassengers < maxPassengers;
+        boolean hasSeat() {
+            return count < limit;
+        }
+
+        boolean canBoard(LocalTime crewArrive) {
+            return !crewArrive.isAfter(depart) && hasSeat();
+        }
+
+        void board(LocalTime crewArrive) {
+            count++;
         }
     }
 }
