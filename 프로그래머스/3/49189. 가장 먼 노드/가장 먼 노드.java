@@ -40,13 +40,14 @@ class Solution {
         int maxDistance = -1;
         for(Integer dist : distance){
             if(dist == 50001) continue;
-            
-            maxDistance = Math.max(maxDistance, dist);
+            if(dist > maxDistance){
+                answer= 1;
+                maxDistance = dist;
+            }else if(dist==maxDistance){
+                answer++;
+            }
         }
         
-        for(Integer dist : distance){
-            if(dist == maxDistance) answer++;
-        }
         return answer;
     }
     
