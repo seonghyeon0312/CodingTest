@@ -2,64 +2,41 @@ import java.util.Queue;
 import java.util.LinkedList;
 
 class Solution {
-    int[][] graph;
-        boolean[][] visited;
+    public int solution(int[][] maps) {
+        int answer = 0;
+        
+        answer = bfs(maps);
+        return answer;
+    }
+    public int bfs(int[][] maps){
+        int n = maps.length;
+        int m = maps[0].length;
+        int[][] board = new int[n][m];
         int[] dx = {1,0,-1,0};
         int[] dy = {0,1,0,-1};
-        int n;
-        int m;
-    
-    public int solution(int[][] maps) {
-        n = maps.length;
-            m = maps[0].length;
-
-            visited = new boolean[n][];
-            for(int i=0;i<n;i++){
-                visited[i] = new boolean[m];
-            }
-
-            graph = new int[n][];
-            for(int i=0;i<n;i++){
-                graph[i] = new int[m];
-            }
-
-            BFS(maps);
-            return graph[n-1][m-1] == 0 ? -1 : graph[n-1][m-1];
-    }
-    
-    void BFS(int[][] maps){
-            Queue<Node> queue = new LinkedList<>();
-            Node node = new Node(0,0);
-            visited[0][0] = true;
-            graph[0][0] = 1;
-            queue.add(node);
-            while(!queue.isEmpty()){
-                Node pollNode = queue.poll();
-                int nowX = pollNode.x;
-                int nowY = pollNode.y;
-
-                for(int i =0;i<4;i++){
-                    int nextX = nowX + dx[i];
-                    int nextY = nowY + dy[i];
-
-                    if(nextX >=0 && nextX < n && nextY >= 0 && nextY < m){
-                        if(maps[nextX][nextY]==1 && !visited[nextX][nextY]){
-                            visited[nextX][nextY] = true;
-                            graph[nextX][nextY] = graph[nowX][nowY] +1;
-                            queue.add(new Node(nextX,nextY));
-                        }
-                    }
+        boolean[][] visited = new boolean[n][m];
+        Queue<int[]> queue = new LinkedList<>();
+        
+        int[] start = {0,0};
+        queue.add(start);
+        board[0][0] = 1;
+        board[n-1][m-1]= -1;
+        visited[0][0] = true;
+        while(!queue.isEmpty()){
+            int[] cord = queue.poll();
+            
+            for(int i=0;i<4;i++){
+                int nx = cord[0]+dx[i];
+                int ny = cord[1]+dy[i];
+                
+                if(nx>=0 && nx<n && ny>=0 && ny<m && !visited[nx][ny] && maps[nx][ny] ==1){
+                    board[nx][ny] = board[cord[0]][cord[1]]+1;
+                    visited[nx][ny] = true;
+                    queue.add(new int[]{nx,ny});
                 }
             }
         }
-    
-    class Node{
-        int x;
-        int y;
         
-        public Node(int x, int y){
-            this.x =x;
-            this.y =y;
-        }
+        return board[n-1][m-1];
     }
 }
