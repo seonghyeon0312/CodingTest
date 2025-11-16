@@ -5,6 +5,7 @@ import java.io.IOException;
 
 public class Main {
     static List<List<Node>> graph = new ArrayList<>();
+    static List<List<Node>> reverseGraph = new ArrayList<>();
     static int n,m,x;
     public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
@@ -13,8 +14,10 @@ public class Main {
         m = Integer.parseInt(st.nextToken());
         x = Integer.parseInt(st.nextToken());
         graph.add(new ArrayList<>());
+        reverseGraph.add(new ArrayList<>());
         for(int i=0;i<n;i++){
             graph.add(new ArrayList<>());
+            reverseGraph.add(new ArrayList<>());
         }
 
         for(int i=0;i<m;i++){
@@ -24,13 +27,13 @@ public class Main {
             int weight = Integer.parseInt(st.nextToken());
 
             graph.get(start).add(new Node(dest, weight));
+            reverseGraph.get(dest).add(new Node(start, weight));
         }
-        int[] dist = Dijk(x);
+        int[] dist = Dijk(graph, x);
+        int[] reverseDist = Dijk(reverseGraph, x);
 
         for(int i=1;i<=n;i++){
-            if(i==x) continue;
-
-            dist[i] += Dijk(i)[x];
+            dist[i]+=reverseDist[i];
         }
 
         int maxValue = Integer.MIN_VALUE;
@@ -41,7 +44,7 @@ public class Main {
         System.out.println(maxValue);
     }
 
-    public static int[] Dijk(int start){
+    public static int[] Dijk(List<List<Node>> graph, int start){
         PriorityQueue<Node> pQueue = new PriorityQueue<>();
         int[] distance = new int[n+1];
         Arrays.fill(distance, Integer.MAX_VALUE);
