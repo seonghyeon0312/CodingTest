@@ -1,59 +1,45 @@
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.lang.Comparable;
+import java.util.*;
+import java.io.*;
 
-public class Main{
-    public static void main(String[] args) throws IOException{
+public class Main {
+    public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(bf.readLine());
-
-        int N = Integer.parseInt(st.nextToken());
+        int N = Integer.parseInt(bf.readLine());
         PriorityQueue<Number> queue = new PriorityQueue<>();
-        int command = 0;
-        for(int i=0;i<N;i++){
-            st = new StringTokenizer(bf.readLine());
-            command = Integer.parseInt(st.nextToken());
+        StringBuilder sb = new StringBuilder();
 
-            if(command == 0){
-                try{
-                    Number num = queue.poll();
-                    System.out.println(num.value);
-                }catch(NullPointerException e){
-                    System.out.println(0);
+        for (int i = 0; i < N; i++) {
+            int command = Integer.parseInt(bf.readLine());
+
+            if (command == 0) {
+                if (queue.isEmpty()) {
+                    sb.append(0).append('\n');
+                } else {
+                    sb.append(queue.poll().value).append('\n');
                 }
-            }else{
+            } else {
                 queue.add(new Number(command));
             }
         }
+
+        System.out.print(sb);
     }
 
     static class Number implements Comparable<Number> {
         int value;
         int absValue;
 
-        Number(int value){
+        Number(int value) {
             this.value = value;
             this.absValue = Math.abs(value);
         }
 
         @Override
-        public int compareTo(Number o){
-            if(this.absValue < o.absValue){
-                return -1;
-            }else if(this.absValue == o.absValue){
-                if(this.value < o.value){
-                    return -1;
-                }else if(this.value>=o.value){
-                    return 1;
-                }
-            }else{
-                return 1;
+        public int compareTo(Number o) {
+            if (this.absValue == o.absValue) {
+                return Integer.compare(this.value, o.value);
             }
-            return 0;
+            return Integer.compare(this.absValue, o.absValue);
         }
-
     }
 }
