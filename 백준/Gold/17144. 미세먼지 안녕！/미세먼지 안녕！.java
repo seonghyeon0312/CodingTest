@@ -1,45 +1,33 @@
-import java.util.Scanner;
-import java.util.Queue;
-import java.util.LinkedList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 
-public class Main
-{
-    static class Dust{
-        int x;
-        int y;
-        int scale;
-        public Dust(int i,int j,int w){
-            this.x=i;
-            this.y=j;
-            this.scale=w;
-        }
-    }
-    static int r;
-    static int c;
-    static int t;
-    static int down;
+public class Main{
+    static int r, c, t;
     static int[][] board;
-    static int dust=0;
-    static Queue<Dust> queue=new LinkedList<>();
-    public static void main(String args[]) {
-        Scanner sc = new Scanner(System.in);
-        r=sc.nextInt();
-        c=sc.nextInt();
-        t=sc.nextInt();
-        board=new int[r][c];// 확산 후
-        for(int i=0;i<r;i++) {
-            for (int j = 0; j < c; j++) {
-                board[i][j] = sc.nextInt();
-                if(board[i][j]==-1){
-                    down=i;
+    static Queue<Dust> queue;
+    public static void main(String[] args) throws IOException {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(bf.readLine());
+        r = Integer.parseInt(st.nextToken());
+        c = Integer.parseInt(st.nextToken());
+        t = Integer.parseInt(st.nextToken());
+
+        board = new int[r][c];
+        int down = 0;
+        for(int i=0;i<r;i++){
+            st = new StringTokenizer(bf.readLine());
+            for(int j=0;j<c;j++){
+                board[i][j] = Integer.parseInt(st.nextToken());
+                if(board[i][j] == -1){
+                    down = i;
                 }
             }
         }
-
         for(int i=0;i<t;i++){
-            check();
-            spread();
-            moving();
+            dustCheckAndSpread();
+            clean(down);
         }
         int sum_dust=0;
         for(int i=0;i<r;i++){
@@ -49,64 +37,78 @@ public class Main
         }
         System.out.println(sum_dust+2);
     }
-    public static void check(){
-        queue=new LinkedList<>();
 
-        for(int i=0;i<r;i++){
-            for(int j=0;j<c;j++){
-                if(board[i][j]!=-1&&board[i][j]!=0){
-                    queue.add(new Dust(i,j,board[i][j]));
-                }
-            }
-        }
-    }
-    public static void spread(){
-        int[] dx={0,1,0,-1};
-        int[] dy={1,0,-1,0};
-        while(!queue.isEmpty()){
-            Dust dust=queue.poll();
-            if(dust.scale<5) continue;
-            int nw=dust.scale/5;
-            int cnt=0;
-            for(int i=0;i<4;i++){
-                int nx=dust.x+dx[i];
-                int ny=dust.y+dy[i];
-                if(nx<r&&ny<c&&nx>=0&&ny>=0&&board[nx][ny]!=-1){
-                    board[nx][ny]+=nw;
-                    board[dust.x][dust.y]-=nw;
-                }
-            }
-        }
+    public static void clean(int down){
+        int up=down-1;
 
-    }
-    public static void moving(){
-        int clean=down-1;
-        int clean_down=down;
-        for(int i=clean-1;i>0;i--){
+        for(int i=up-1;i>0;i--){
             board[i][0]=board[i-1][0];
         }
         for(int i=0;i<c-1;i++){
             board[0][i]=board[0][i+1];
         }
-        for(int i=0;i<clean;i++){
+        for(int i=0;i<up;i++){
             board[i][c-1]=board[i+1][c-1];
         }
         for(int i=c-1;i>1;i--){
-            board[clean][i]=board[clean][i-1];
+            board[up][i]=board[up][i-1];
         }
-        board[clean][1]=0;
-        for(int i=clean_down+1;i<r-1;i++){
+        board[up][1]=0;
+        for(int i=down+1;i<r-1;i++){
             board[i][0]=board[i+1][0];
         }
         for(int i=0;i<c-1;i++){
             board[r-1][i]=board[r-1][i+1];
         }
-        for(int i=r-1;i>clean_down;i--){
+        for(int i=r-1;i>down;i--){
             board[i][c-1]=board[i-1][c-1];
         }
         for(int i=c-1;i>1;i--){
-            board[clean_down][i]=board[clean_down][i-1];
+            board[down][i]=board[down][i-1];
         }
-        board[clean_down][1]=0;
+        board[down][1]=0;
+    }
+
+    private static void dustCheckAndSpread(){
+        queue = new LinkedList<>();
+        for(int i=0;i<r;i++){
+            for(int j=0;j<c;j++){
+                if(board[i][j] != 0 && board[i][j] != -1){
+                    queue.add(new Dust(i,j, board[i][j]));
+                }
+            }
+        }
+
+        while(!queue.isEmpty()){
+            Dust dust = queue.poll();
+            dust.spread();
+        }
+    }
+
+    private static class Dust{
+        int x;
+        int y;
+        int amount;
+
+        public Dust(int x, int y, int amount){
+            this.x = x;
+            this.y = y;
+            this.amount = amount;
+        }
+
+        public void spread(){
+            int[] dx = {1,0,-1,0};
+            int[] dy = {0,1,0,-1};
+            int spreadAmount = amount / 5;
+            for(int i=0;i<4;i++){
+                int nx = x+dx[i];
+                int ny = y+dy[i];
+
+                if(nx>=0 && nx<r && ny>=0 && ny<c && board[nx][ny] != -1){
+                    board[nx][ny] += spreadAmount;
+                    board[x][y] -= spreadAmount;
+                }
+            }
+        }
     }
 }
