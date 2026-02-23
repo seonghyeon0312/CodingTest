@@ -1,34 +1,40 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.StringTokenizer;
-import java.util.PriorityQueue;
+import java.io.*;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-        int t = Integer.parseInt(bf.readLine());
-
-        while(t-- > 0){
-            int k = Integer.parseInt(bf.readLine());
-            StringTokenizer st = new StringTokenizer(bf.readLine());
-            PriorityQueue<Long> pQueue = new PriorityQueue<>();
-
-            while(k-- > 0){
-                pQueue.add(Long.parseLong(st.nextToken()));
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        
+        int t = Integer.parseInt(br.readLine());
+        
+        while (t-- > 0) {
+            int k = Integer.parseInt(br.readLine());
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            
+            // 최소 힙 사용
+            PriorityQueue<Long> pq = new PriorityQueue<>();
+            
+            // 입력 받으면서 바로 힙에 추가
+            for (int i = 0; i < k; i++) {
+                pq.offer(Long.parseLong(st.nextToken()));
             }
-
-            long result = 0;
-            while(pQueue.size() > 1){
-                Long num1 = pQueue.poll();
-                Long num2 = pQueue.poll();
-
-                result += (num1+num2);
-                pQueue.add(num1+num2);
+            
+            long totalCost = 0;
+            
+            // 파일이 1개 남을 때까지 합치기
+            while (pq.size() > 1) {
+                long file1 = pq.poll();
+                long file2 = pq.poll();
+                long mergeCost = file1 + file2;
+                
+                totalCost += mergeCost;
+                pq.offer(mergeCost);
             }
-
-            System.out.println(result);
+            
+            sb.append(totalCost).append('\n');
         }
+        
+        System.out.print(sb);
     }
 }
